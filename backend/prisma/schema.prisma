@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+}
+
+enum ModelStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  models Model[]
+
+  @@map("categories")
+}
+
+model Model {
+  id         String      @id @default(cuid())
+  name       String
+  categoryId String
+  imagePath  String?
+  launchDate DateTime
+  status     ModelStatus @default(ACTIVE)
+
+  totalInterest   Int @default(0)
+  totalQuotations Int @default(0)
+  totalSamples    Int @default(0)
+  totalSales      Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category         Category         @relation(fields: [categoryId], references: [id])
+  statisticEntries StatisticEntry[]
+
+  @@index([categoryId])
+  @@index([status])
+  @@map("models")
+}
+
+model StatisticEntry {
+  id              String   @id @default(cuid())
+  modelId         String
+  date            DateTime @default(now())
+  interestDelta   Int      @default(0)
+  quotationsDelta Int      @default(0)
+  samplesDelta    Int      @default(0)
+  salesDelta      Int      @default(0)
+  note            String?
+  createdAt       DateTime @default(now())
+
+  model Model @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@index([modelId, date])
+  @@map("model_statistics")
+}
