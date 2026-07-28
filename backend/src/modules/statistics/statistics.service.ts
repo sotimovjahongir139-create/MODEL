@@ -15,7 +15,14 @@ export async function addStatisticEntry(modelId: string, input: AddStatisticInpu
         samplesDelta: input.samples,
         salesDelta: input.sales,
         note: input.note,
+        clients: {
+          create: input.clients?.map((client) => ({
+            name: client.name,
+            stage: client.stage,
+          })),
+        },
       },
+      include: { clients: true },
     });
 
     const updatedModel = await tx.model.update({
@@ -38,6 +45,7 @@ export async function listHistory(modelId: string) {
 
   return prisma.statisticEntry.findMany({
     where: { modelId },
+    include: { clients: true },
     orderBy: { date: "asc" },
   });
 }

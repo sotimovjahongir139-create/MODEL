@@ -1,3 +1,13 @@
+export type ClientStage = "INTEREST" | "QUOTATIONS" | "SAMPLES" | "SALES";
+
+export interface StatisticClient {
+  id: string;
+  statisticEntryId: string;
+  name: string;
+  stage: ClientStage;
+  createdAt: string;
+}
+
 export interface StatisticEntry {
   id: string;
   modelId: string;
@@ -8,6 +18,12 @@ export interface StatisticEntry {
   salesDelta: number;
   note: string | null;
   createdAt: string;
+  clients: StatisticClient[];
+}
+
+export interface AddStatisticClientInput {
+  name: string;
+  stage: ClientStage;
 }
 
 export interface AddStatisticInput {
@@ -16,4 +32,5 @@ export interface AddStatisticInput {
   samples: number;
   sales: number;
   note?: string;
+  clients?: AddStatisticClientInput[];
 }

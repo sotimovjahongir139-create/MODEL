@@ -18,6 +18,13 @@ enum ModelStatus {
   DISCONTINUED
 }
 
+enum StatCategory {
+  INTEREST
+  QUOTATIONS
+  SAMPLES
+  SALES
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -75,8 +82,22 @@ model StatisticEntry {
   note            String?
   createdAt       DateTime @default(now())
 
-  model Model @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  model   Model                @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  clients StatisticClient[]
 
   @@index([modelId, date])
   @@map("model_statistics")
+}
+
+model StatisticClient {
+  id               String       @id @default(cuid())
+  statisticEntryId String
+  name             String
+  stage            StatCategory
+  createdAt        DateTime     @default(now())
+
+  statisticEntry StatisticEntry @relation(fields: [statisticEntryId], references: [id], onDelete: Cascade)
+
+  @@index([statisticEntryId])
+  @@map("statistic_clients")
 }
